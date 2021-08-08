@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.google.protobuf' version "0.8.17"
 }
 
 group 'com.jeancsil'
@@ -10,8 +11,103 @@ repositories {
 }
 
 dependencies {
+    // Kafka
+    implementation 'org.apache.kafka:kafka-clients:2.8.0'
+
+    //Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    //Protobuf
+//    compileClasspath 'com.google.protobuf:protobuf-gradle-plugin:0.8.17'
+    implementation 'com.google.protobuf:protobuf-lite:3.0.0'
+
+    //Logging
+    implementation 'org.slf4j:slf4j-api:1.7.31'
+
+    //Unit testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+//sourceSets {
+//    main {
+//        java {
+//            srcDirs 'build/generated/source/proto/main/javalite'
+//        }
+//    }
+//}
+
+// Test
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java'
+        }
+        proto {
+            srcDirs 'build/generated/source/proto/main/javalite'
+        }
+    }
+}
+
+//protobuf {
+//    // Configure the protoc executable
+//    protoc {
+//        // Download from repositories
+//        artifact = 'com.google.protobuf:protoc:3.0.0'
+//    }
+//}
+
+//sourceSets {
+//    main {
+//        proto {
+//            // In addition to the default 'src/main/proto'
+//            srcDir 'src/main/protobuf'
+////            srcDir 'src/main/protocolbuffers'
+//            // In addition to the default '**/*.proto' (use with caution).
+//            // Using an extension other than 'proto' is NOT recommended,
+//            // because when proto files are published along with class files, we can
+//            // only tell the type of a file from its extension.
+////            include '**/*.protodevel'
+//        }
+//        java {
+//
+//        }
+//    }
+//    test {
+//        proto {
+//            // In addition to the default 'src/test/proto'
+//            srcDir 'src/test/protobuf'
+//        }
+//    }
+//}
+
+
+protobuf {
+    protoc {
+        // You still need protoc like in the non-Android case
+        artifact = 'com.google.protobuf:protoc:3.7.0'
+    }
+    plugins {
+        javalite {
+            // The codegen for lite comes as a separate artifact
+            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                // In most cases you don't need the full Java output
+                // if you use the lite output.
+                remove java
+            }
+            task.plugins {
+                javalite {}
+            }
+        }
+    }
 }
 
 test {
